@@ -1,0 +1,79 @@
+.beranda-galeri__header {
+  margin-bottom: var(--space-3xl);
+}
+
+.beranda-galeri__header h2 {
+  margin-bottom: var(--space-md);
+}
+
+.beranda-galeri__grid {
+  column-count: 3;
+  column-gap: var(--space-lg);
+}
+
+.beranda-galeri__more {
+  text-align: center;
+  margin-top: var(--space-3xl);
+}
+
+/* Manifesto */
+.beranda-manifesto__quote {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.beranda-manifesto__quote p {
+  font-size: clamp(var(--text-xl), 3vw, var(--text-4xl));
+  line-height: 1.4;
+  margin-bottom: var(--space-xl);
+  color: var(--color-ink-dark);
+}
+
+.beranda-manifesto__quote cite {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  letter-spacing: 0.1em;
+  font-style: normal;
+}
+
+/* CTA */
+.beranda-cta {
+  text-align: center;
+  padding: var(--space-5xl) 0;
+}
+
+.beranda-cta__title {
+  margin-bottom: var(--space-xl);
+}
+
+.beranda-cta__desc {
+  font-size: var(--text-base);
+  color: var(--color-muted);
+  margin-bottom: var(--space-2xl);
+}
+
+.beranda-cta__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .beranda-galeri__grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .beranda-galeri__grid {
+    column-count: 1;
+  }
+
+  .beranda-cta__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}

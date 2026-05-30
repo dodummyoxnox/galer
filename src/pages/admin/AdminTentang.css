@@ -1,0 +1,11 @@
+.admin-tentang__form {
+  max-width: 700px;
+}
+
+.admin-tentang__hint {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: #ccc;
+  margin-top: var(--space-xs);
+}

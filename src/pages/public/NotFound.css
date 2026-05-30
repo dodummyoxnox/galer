@@ -1,0 +1,33 @@
+.not-found {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.not-found__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.not-found__code {
+  font-size: clamp(8rem, 20vw, 16rem);
+  line-height: 0.8;
+  color: var(--color-border);
+  letter-spacing: -0.05em;
+}
+
+.not-found__title {
+  font-size: var(--text-4xl);
+  color: var(--color-accent);
+}
+
+.not-found__desc {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.8;
+  margin-bottom: var(--space-md);
+}

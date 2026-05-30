@@ -1,0 +1,21 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #fafaf8;
+  color: var(--color-ink-dark);
+}
+
+.admin-layout__content {
+  flex: 1;
+  margin-left: 260px;
+  padding: var(--space-2xl);
+  max-width: 1200px;
+}
+
+@media (max-width: 1024px) {
+  .admin-layout__content {
+    margin-left: 0;
+    padding: var(--space-lg);
+    padding-top: calc(60px + var(--space-lg));
+  }
+}

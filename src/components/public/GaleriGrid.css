@@ -1,0 +1,42 @@
+.galeri-grid-wrap {
+  width: 100%;
+}
+
+.galeri-grid {
+  column-count: 3;
+  column-gap: var(--space-lg);
+}
+
+.galeri-grid__more {
+  text-align: center;
+  padding: var(--space-3xl) 0;
+}
+
+.galeri-grid__load-btn {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  background: none;
+  border: none;
+  padding: var(--space-md) var(--space-xl);
+}
+
+.galeri-grid__load-btn:hover {
+  color: var(--color-accent);
+}
+
+/* Responsive columns */
+@media (max-width: 1024px) {
+  .galeri-grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .galeri-grid {
+    column-count: 1;
+  }
+}

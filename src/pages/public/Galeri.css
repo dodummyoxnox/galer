@@ -1,0 +1,17 @@
+.galeri-page {
+  padding-top: calc(80px + var(--space-3xl));
+}
+
+.galeri-page__header {
+  margin-bottom: var(--space-2xl);
+}
+
+.galeri-page__header h1 {
+  margin-bottom: var(--space-sm);
+}
+
+.galeri-page__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  letter-spacing: 0.05em;
+}

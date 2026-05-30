@@ -1,0 +1,45 @@
+.info-page {
+  padding-top: 80px;
+}
+
+.info-page__header h1 {
+  font-size: var(--text-6xl);
+  margin-bottom: var(--space-lg);
+}
+
+.info-page__intro {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  max-width: 600px;
+  line-height: 1.8;
+}
+
+.info-page__services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl);
+}
+
+.info-page__steps .step-guide__num {
+  color: var(--color-ink-dark);
+  opacity: 0.15;
+}
+
+.info-page__steps .step-guide__item:hover .step-guide__num {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.info-page__steps .step-guide__title {
+  color: var(--color-ink-dark);
+}
+
+.info-page__steps .step-guide__desc {
+  color: var(--color-muted);
+}
+
+@media (max-width: 640px) {
+  .info-page__services-grid {
+    grid-template-columns: 1fr;
+  }
+}

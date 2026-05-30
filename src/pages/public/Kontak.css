@@ -1,0 +1,61 @@
+.kontak-page {
+  padding-top: calc(80px + var(--space-3xl));
+}
+
+.kontak-page__header {
+  margin-bottom: var(--space-3xl);
+}
+
+.kontak-page__header h1 {
+  margin-bottom: var(--space-sm);
+}
+
+.kontak-page__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.kontak-page__body {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-4xl);
+  align-items: start;
+}
+
+.kontak-page__info {
+  padding: var(--space-2xl);
+  border: 2px solid var(--color-border);
+}
+
+.kontak-page__info-item {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+}
+
+.kontak-page__info-icon {
+  color: var(--color-accent);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.kontak-page__info-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-xs);
+}
+
+.kontak-page__info-value {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
+@media (max-width: 1024px) {
+  .kontak-page__body {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+}

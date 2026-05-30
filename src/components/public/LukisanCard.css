@@ -1,0 +1,73 @@
+.lukisan-card {
+  display: block;
+  break-inside: avoid;
+  margin-bottom: var(--space-lg);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.lukisan-card__img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.lukisan-card__img {
+  width: 100%;
+  display: block;
+  transition: transform var(--transition-slow);
+  filter: grayscale(0.1);
+}
+
+.lukisan-card:hover .lukisan-card__img {
+  transform: scale(1.03);
+  filter: grayscale(0);
+}
+
+.lukisan-card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-lg);
+  background: linear-gradient(
+    to top,
+    rgba(13, 13, 13, 0.9) 0%,
+    rgba(13, 13, 13, 0.6) 60%,
+    transparent 100%
+  );
+  transform: translateY(100%);
+  transition: transform var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.lukisan-card:hover .lukisan-card__overlay {
+  transform: translateY(0);
+}
+
+.lukisan-card__num {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+}
+
+.lukisan-card__title {
+  font-size: var(--text-2xl);
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.lukisan-card__meta {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Touch devices — always show overlay */
+@media (hover: none) {
+  .lukisan-card__overlay {
+    transform: translateY(0);
+  }
+}

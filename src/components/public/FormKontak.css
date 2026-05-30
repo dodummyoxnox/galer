@@ -1,0 +1,83 @@
+.form-kontak {
+  max-width: 700px;
+}
+
+.form-kontak__group {
+  margin-bottom: var(--space-xl);
+}
+
+.form-kontak__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+.form-kontak__label {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: 0.15em;
+  color: var(--color-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.form-kontak__input {
+  width: 100%;
+  padding: var(--space-md);
+  border: 3px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.form-kontak__input::placeholder {
+  color: var(--color-muted);
+  opacity: 0.6;
+}
+
+.form-kontak__input:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+.form-kontak__select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a4a4a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-md) center;
+  padding-right: var(--space-2xl);
+}
+
+.form-kontak__textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.form-kontak__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.form-kontak__status {
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.form-kontak__status--success {
+  color: var(--color-success);
+}
+
+.form-kontak__status--error {
+  color: var(--color-error);
+}
+
+@media (max-width: 640px) {
+  .form-kontak__row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

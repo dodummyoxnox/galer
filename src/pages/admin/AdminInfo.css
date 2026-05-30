@@ -1,0 +1,42 @@
+.admin-info__form {
+  max-width: 800px;
+}
+
+.admin-info__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.admin-info__layanan-item {
+  padding: var(--space-lg);
+  border: 1px solid #f0f0f0;
+  margin-bottom: var(--space-md);
+  background: #fafafa;
+}
+
+.admin-info__layanan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.admin-info__layanan-num {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: #e5e5e5;
+}
+
+.admin-info .admin-form-row {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-width: 640px) {
+  .admin-info .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+}

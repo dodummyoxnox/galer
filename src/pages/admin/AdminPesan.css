@@ -1,0 +1,182 @@
+.admin-pesan__summary {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #999;
+  margin: var(--space-sm) 0 var(--space-xl);
+}
+
+.admin-pesan__layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  min-height: 500px;
+}
+
+.admin-pesan__list {
+  border-right: 1px solid #e5e5e5;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.admin-pesan__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 150ms;
+}
+
+.admin-pesan__item:hover {
+  background: #fafafa;
+}
+
+.admin-pesan__item--active {
+  background: #fef2f2;
+  border-left: 3px solid var(--color-accent);
+}
+
+.admin-pesan__item--new .admin-pesan__item-name {
+  font-weight: 700;
+}
+
+.admin-pesan__item-icon {
+  color: #999;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.admin-pesan__item--new .admin-pesan__item-icon {
+  color: var(--color-accent);
+}
+
+.admin-pesan__item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-pesan__item-name {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #333;
+}
+
+.admin-pesan__item-jenis {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}
+
+.admin-pesan__item-preview {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-pesan__item-date {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #ccc;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Detail */
+.admin-pesan__detail {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-pesan__detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.admin-pesan__detail-header h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: #333;
+  text-transform: none;
+}
+
+.admin-pesan__detail-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.admin-pesan__detail-meta {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.admin-pesan__detail-meta strong {
+  color: #999;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-pesan__detail-body {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #333;
+  line-height: 1.8;
+  padding: var(--space-lg);
+  background: #fafafa;
+  margin-bottom: var(--space-lg);
+}
+
+.admin-pesan__detail-reply {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.admin-pesan__detail-reply .admin-btn-secondary {
+  text-decoration: none;
+}
+
+.admin-pesan__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--space-md);
+  color: #ccc;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 1024px) {
+  .admin-pesan__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pesan__list {
+    border-right: none;
+    border-bottom: 1px solid #e5e5e5;
+    max-height: 300px;
+  }
+}

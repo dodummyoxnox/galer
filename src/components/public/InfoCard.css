@@ -1,0 +1,57 @@
+.info-card {
+  border: 3px solid var(--color-border);
+  padding: var(--space-xl);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.info-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.info-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.info-card__title {
+  font-size: var(--text-3xl);
+  line-height: 1;
+}
+
+.info-card__waktu {
+  font-size: var(--text-xs);
+  color: var(--color-accent-alt);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.info-card__desc {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-lg);
+}
+
+.info-card__price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: var(--border-thin);
+}
+
+.info-card__price-label {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  letter-spacing: 0.15em;
+}
+
+.info-card__price-range {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+  font-weight: 700;
+}
