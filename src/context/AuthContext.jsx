@@ -1,31 +1,58 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { request } from '../utils/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [admin, setAdmin] = useState(() => {
-    const saved = sessionStorage.getItem('admin');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (email, password) => {
-    // Mock auth — replace with API call
-    if (email === 'admin@studio.com' && password === 'admin123') {
-      const user = { email, nama: 'Admin Studio' };
-      setAdmin(user);
-      sessionStorage.setItem('admin', JSON.stringify(user));
-      return { success: true };
+  // Check auth status on app start/mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const result = await request('/api/auth/status');
+        if (result.isAuthenticated) {
+          setAdmin(result.admin);
+        }
+      } catch (error) {
+        console.warn('Gagal memverifikasi status auth:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuthStatus();
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const result = await request('/api/auth/login', {
+        method: 'POST',
+        body: { email, password },
+      });
+
+      if (result.success) {
+        setAdmin(result.admin);
+        return { success: true };
+      }
+      return { success: false, error: 'Email atau password salah.' };
+    } catch (error) {
+      return { success: false, error: error.message || 'Koneksi gagal ke server.' };
     }
-    return { success: false, error: 'Email atau password salah.' };
   };
 
-  const logout = () => {
-    setAdmin(null);
-    sessionStorage.removeItem('admin');
+  const logout = async () => {
+    try {
+      await request('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Gagal logout di server:', error.message);
+    } finally {
+      setAdmin(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, isAuthenticated: !!admin }}>
+    <AuthContext.Provider value={{ admin, login, logout, isAuthenticated: !!admin, loading }}>
       {children}
     </AuthContext.Provider>
   );

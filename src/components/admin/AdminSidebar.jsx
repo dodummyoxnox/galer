@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { pesanData } from '../../data/mockData';
-import { HiHome, HiPhotograph, HiTag, HiMail, HiInformationCircle, HiUser, HiLogout } from 'react-icons/hi';
-import { useState } from 'react';
+import { useSettings } from '../../context/SettingsContext';
+import { request } from '../../utils/api';
+import { HiHome, HiPhotograph, HiTag, HiMail, HiInformationCircle, HiUser, HiLogout, HiCog } from 'react-icons/hi';
+import { useState, useEffect } from 'react';
 import { HiMenuAlt2, HiX } from 'react-icons/hi';
 import './AdminSidebar.css';
 
@@ -13,16 +14,41 @@ const navItems = [
   { to: '/admin/pesan', label: 'Pesan', icon: HiMail, badge: true },
   { to: '/admin/info', label: 'Info / Layanan', icon: HiInformationCircle },
   { to: '/admin/tentang', label: 'Tentang', icon: HiUser },
+  { to: '/admin/settings', label: 'Pengaturan', icon: HiCog },
 ];
 
 export default function AdminSidebar() {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const unreadCount = pesanData.filter((p) => p.status === 'BARU').length;
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const handleLogout = () => {
-    logout();
+  // Fetch unread messages count dynamically if authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchMessages = async () => {
+      try {
+        const response = await request('/api/pesan');
+        if (response.success && response.data) {
+          const count = response.data.filter((p) => p.status === 'BARU').length;
+          setUnreadCount(count);
+        }
+      } catch (error) {
+        console.warn('Gagal memuat pesan masuk di sidebar:', error.message);
+      }
+    };
+
+    fetchMessages();
+    
+    // Poll every 30 seconds to update badge count
+    const interval = setInterval(fetchMessages, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  const handleLogout = async () => {
+    await logout();
     navigate('/admin');
   };
 
@@ -35,7 +61,9 @@ export default function AdminSidebar() {
       <aside className={`admin-sidebar ${open ? 'admin-sidebar--open' : ''}`} id="admin-sidebar">
         <div className="admin-sidebar__brand">
           <span className="admin-sidebar__brand-text">ADMIN</span>
-          <span className="admin-sidebar__brand-sub">Studio Urakan</span>
+          <span className="admin-sidebar__brand-sub">
+            {settings?.studioName || 'Studio Urakan'}
+          </span>
         </div>
 
         <nav className="admin-sidebar__nav">

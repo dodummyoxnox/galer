@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Lukisan {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  judul       String
+  tahun       Int
+  medium      String
+  ukuran      String
+  kanvas      String
+  deskripsi   String        @db.Text
+  harga       Int?
+  tampilHarga Boolean       @default(false)
+  status      StatusLukisan @default(TERSEDIA)
+  featured    Boolean       @default(false)
+  fotoUtama   String
+  fotoLain    String[]
+  kategori    Kategori[]    @relation("LukisanKategori")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum StatusLukisan {
+  TERSEDIA
+  TERJUAL
+  TIDAK_DIJUAL
+}
+
+model Kategori {
+  id      Int       @id @default(autoincrement())
+  nama    String    @unique
+  slug    String    @unique
+  lukisan Lukisan[] @relation("LukisanKategori")
+}
+
+model Pesan {
+  id        Int         @id @default(autoincrement())
+  nama      String
+  email     String
+  noWa      String?
+  jenis     String
+  isi       String      @db.Text
+  status    StatusPesan @default(BARU)
+  createdAt DateTime    @default(now())
+}
+
+enum StatusPesan {
+  BARU
+  DIBACA
+}
+
+model HalamanKonten {
+  id        Int      @id @default(autoincrement())
+  kunci     String   @unique // "tentang" | "info" | "settings"
+  konten    Json
+  updatedAt DateTime @updatedAt
+}

@@ -1,9 +1,15 @@
 import { FaWhatsapp } from 'react-icons/fa';
 import { HiMail, HiLocationMarker } from 'react-icons/hi';
 import FormKontak from '../../components/public/FormKontak';
+import { useSettings } from '../../context/SettingsContext';
 import './Kontak.css';
 
 export default function Kontak() {
+  const { settings } = useSettings();
+
+  const waNumber = settings?.whatsapp || '6281234567890';
+  const emailAddr = settings?.email || 'studio@urakan.com';
+
   return (
     <div className="kontak-page section" id="kontak-page">
       <div className="container">
@@ -29,8 +35,8 @@ export default function Kontak() {
               <FaWhatsapp size={20} className="kontak-page__info-icon" />
               <div>
                 <span className="kontak-page__info-label font-mono">WHATSAPP</span>
-                <a href="https://wa.me/6281234567890" className="kontak-page__info-value font-mono link-marker">
-                  +62 812-3456-7890
+                <a href={`https://wa.me/${waNumber}`} className="kontak-page__info-value font-mono link-marker">
+                  +{waNumber}
                 </a>
               </div>
             </div>
@@ -39,8 +45,8 @@ export default function Kontak() {
               <HiMail size={20} className="kontak-page__info-icon" />
               <div>
                 <span className="kontak-page__info-label font-mono">EMAIL</span>
-                <a href="mailto:studio@urakan.com" className="kontak-page__info-value font-mono link-marker">
-                  studio@urakan.com
+                <a href={`mailto:${emailAddr}`} className="kontak-page__info-value font-mono link-marker">
+                  {emailAddr}
                 </a>
               </div>
             </div>

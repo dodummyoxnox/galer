@@ -1,20 +1,70 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { lukisanData, pesanData, formatTanggal, getStatusLabel } from '../../data/mockData';
 import { HiPhotograph, HiCheckCircle, HiMail, HiPlus } from 'react-icons/hi';
+import { request } from '../../utils/api';
 import './Dashboard.css';
 
+const formatTanggal = (dateString) => {
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
+const getStatusLabel = (status) => {
+  const labels = {
+    TERSEDIA: 'Tersedia',
+    TERJUAL: 'Terjual',
+    TIDAK_DIJUAL: 'Tidak Dijual',
+  };
+  return labels[status] || status;
+};
+
 export default function Dashboard() {
-  const totalLukisan = lukisanData.length;
-  const lukisanTersedia = lukisanData.filter((l) => l.status === 'TERSEDIA').length;
-  const pesanBaru = pesanData.filter((p) => p.status === 'BARU').length;
-  const recentLukisan = lukisanData.slice(0, 5);
-  const recentPesan = pesanData.slice(0, 5);
+  const [lukisanList, setLukisanList] = useState([]);
+  const [pesanList, setPesanList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const [lukisanRes, pesanRes] = await Promise.all([
+          request('/api/lukisan'),
+          request('/api/pesan'),
+        ]);
+
+        if (lukisanRes.success) setLukisanList(lukisanRes.data);
+        if (pesanRes.success) setPesanList(pesanRes.data);
+      } catch (error) {
+        console.error('Gagal memuat data dashboard:', error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
+
+  const totalLukisan = lukisanList.length;
+  const lukisanTersedia = lukisanList.filter((l) => l.status === 'TERSEDIA').length;
+  const pesanBaru = pesanList.filter((p) => p.status === 'BARU').length;
+  const recentLukisan = lukisanList.slice(0, 5);
+  const recentPesan = pesanList.slice(0, 5);
 
   const stats = [
     { label: 'Total Lukisan', value: totalLukisan, icon: HiPhotograph, color: '#3b82f6' },
     { label: 'Lukisan Tersedia', value: lukisanTersedia, icon: HiCheckCircle, color: '#22c55e' },
     { label: 'Pesan Baru', value: pesanBaru, icon: HiMail, color: '#ef4444' },
   ];
+
+  if (loading) {
+    return (
+      <div className="admin-dashboard font-mono" style={{ padding: '40px 0', color: 'var(--color-muted)' }}>
+        Memuat data dashboard...
+      </div>
+    );
+  }
 
   return (
     <div className="admin-dashboard" id="admin-dashboard">
@@ -50,15 +100,21 @@ export default function Dashboard() {
             <Link to="/admin/lukisan" className="admin-dashboard__view-all">Lihat semua →</Link>
           </div>
           <div className="admin-dashboard__list">
-            {recentLukisan.map((l) => (
-              <div key={l.id} className="admin-dashboard__list-item">
-                <img src={l.fotoUtama} alt={l.judul} className="admin-dashboard__thumb" />
-                <div className="admin-dashboard__list-info">
-                  <span className="admin-dashboard__list-title">{l.judul}</span>
-                  <span className="admin-dashboard__list-meta">{l.tahun} · {getStatusLabel(l.status)}</span>
-                </div>
+            {recentLukisan.length === 0 ? (
+              <div className="font-mono" style={{ color: 'var(--color-muted)', padding: '15px 0' }}>
+                Belum ada lukisan.
               </div>
-            ))}
+            ) : (
+              recentLukisan.map((l) => (
+                <div key={l.id} className="admin-dashboard__list-item">
+                  <img src={l.fotoUtama} alt={l.judul} className="admin-dashboard__thumb" />
+                  <div className="admin-dashboard__list-info">
+                    <span className="admin-dashboard__list-title">{l.judul}</span>
+                    <span className="admin-dashboard__list-meta">{l.tahun} · {getStatusLabel(l.status)}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -69,17 +125,23 @@ export default function Dashboard() {
             <Link to="/admin/pesan" className="admin-dashboard__view-all">Lihat semua →</Link>
           </div>
           <div className="admin-dashboard__list">
-            {recentPesan.map((p) => (
-              <div key={p.id} className="admin-dashboard__list-item">
-                <div className={`admin-dashboard__msg-dot ${p.status === 'BARU' ? 'admin-dashboard__msg-dot--new' : ''}`} />
-                <div className="admin-dashboard__list-info">
-                  <span className="admin-dashboard__list-title">{p.nama}</span>
-                  <span className="admin-dashboard__list-meta">
-                    {formatTanggal(p.createdAt)} · {p.isi.slice(0, 50)}...
-                  </span>
-                </div>
+            {recentPesan.length === 0 ? (
+              <div className="font-mono" style={{ color: 'var(--color-muted)', padding: '15px 0' }}>
+                Belum ada pesan masuk.
               </div>
-            ))}
+            ) : (
+              recentPesan.map((p) => (
+                <div key={p.id} className="admin-dashboard__list-item">
+                  <div className={`admin-dashboard__msg-dot ${p.status === 'BARU' ? 'admin-dashboard__msg-dot--new' : ''}`} />
+                  <div className="admin-dashboard__list-info">
+                    <span className="admin-dashboard__list-title">{p.nama}</span>
+                    <span className="admin-dashboard__list-meta">
+                      {formatTanggal(p.createdAt)} · {p.isi.slice(0, 50)}...
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

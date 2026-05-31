@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useSettings } from '../../context/SettingsContext';
 import './AdminLogin.css';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
   const { login, isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
 
   if (isAuthenticated) {
@@ -15,14 +18,22 @@ export default function AdminLogin() {
     return null;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = login(email, password);
-    if (result.success) {
-      navigate('/admin/dashboard');
-    } else {
-      setError(result.error);
+    setLoggingIn(true);
+
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        navigate('/admin/dashboard');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Gagal menghubungkan ke server.');
+    } finally {
+      setLoggingIn(false);
     }
   };
 
@@ -31,7 +42,9 @@ export default function AdminLogin() {
       <div className="admin-login__card">
         <div className="admin-login__header">
           <h1 className="admin-login__brand">ADMIN</h1>
-          <span className="admin-login__sub">Studio Urakan</span>
+          <span className="admin-login__sub">
+            {settings?.studioName || 'Studio Urakan'}
+          </span>
         </div>
 
         <form onSubmit={handleSubmit} className="admin-login__form">
@@ -47,6 +60,7 @@ export default function AdminLogin() {
               required
               className="admin-login__input"
               placeholder="admin@studio.com"
+              disabled={loggingIn}
             />
           </div>
 
@@ -60,16 +74,22 @@ export default function AdminLogin() {
               required
               className="admin-login__input"
               placeholder="••••••••"
+              disabled={loggingIn}
             />
           </div>
 
-          <button type="submit" className="admin-login__submit" id="admin-login-submit">
-            MASUK
+          <button
+            type="submit"
+            className="admin-login__submit"
+            id="admin-login-submit"
+            disabled={loggingIn}
+          >
+            {loggingIn ? 'MEMPROSES...' : 'MASUK'}
           </button>
         </form>
 
         <p className="admin-login__hint">
-          Demo: admin@studio.com / admin123
+          Gunakan kredensial admin yang terkonfigurasi di env.
         </p>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HiMenuAlt4, HiX } from 'react-icons/hi';
+import { useSettings } from '../../context/SettingsContext';
 import './NavBar.css';
 
 const navLinks = [
@@ -14,6 +15,7 @@ const navLinks = [
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { settings } = useSettings();
   const location = useLocation();
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function NavBar() {
     <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`} id="main-nav">
       <div className="navbar__inner container">
         <Link to="/" className="navbar__brand font-display">
-          STUDIO URAKAN
+          {settings?.studioName || 'STUDIO URAKAN'}
         </Link>
 
         <button

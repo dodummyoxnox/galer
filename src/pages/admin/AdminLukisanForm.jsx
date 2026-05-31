@@ -1,27 +1,79 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { lukisanData, kategoriData } from '../../data/mockData';
+import { request } from '../../utils/api';
 import './AdminLukisanForm.css';
 
 export default function AdminLukisanForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
-  const existing = isEdit ? lukisanData.find((l) => l.id === parseInt(id)) : null;
+
+  const fileInputRef = useRef(null);
+  const multipleFilesInputRef = useRef(null);
+
+  const [kategoriList, setKategoriList] = useState([]);
+  const [loading, setLoading] = useState(isEdit);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingLain, setUploadingLain] = useState(false);
 
   const [form, setForm] = useState({
-    judul: existing?.judul || '',
-    tahun: existing?.tahun || new Date().getFullYear(),
-    medium: existing?.medium || '',
-    ukuran: existing?.ukuran || '',
-    kanvas: existing?.kanvas || '',
-    deskripsi: existing?.deskripsi || '',
-    harga: existing?.harga || '',
-    tampilHarga: existing?.tampilHarga || false,
-    status: existing?.status || 'TERSEDIA',
-    featured: existing?.featured || false,
-    kategoriIds: existing?.kategori?.map((k) => k.id) || [],
+    judul: '',
+    tahun: new Date().getFullYear(),
+    medium: '',
+    ukuran: '',
+    kanvas: '',
+    deskripsi: '',
+    harga: '',
+    tampilHarga: false,
+    status: 'TERSEDIA',
+    featured: false,
+    fotoUtama: '',
+    fotoLain: [],
+    kategoriIds: [],
   });
+
+  // Fetch categories & painting detail on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Fetch categories
+        const katResponse = await request('/api/kategori');
+        if (katResponse.success) {
+          setKategoriList(katResponse.data);
+        }
+
+        // Fetch painting detail if editing
+        if (isEdit) {
+          const lukResponse = await request(`/api/lukisan/${id}`);
+          if (lukResponse.success && lukResponse.data) {
+            const l = lukResponse.data;
+            setForm({
+              judul: l.judul || '',
+              tahun: l.tahun || new Date().getFullYear(),
+              medium: l.medium || '',
+              ukuran: l.ukuran || '',
+              kanvas: l.kanvas || '',
+              deskripsi: l.deskripsi || '',
+              harga: l.harga !== null ? l.harga : '',
+              tampilHarga: l.tampilHarga || false,
+              status: l.status || 'TERSEDIA',
+              featured: l.featured || false,
+              fotoUtama: l.fotoUtama || '',
+              fotoLain: l.fotoLain || [],
+              kategoriIds: l.kategori?.map((k) => k.id) || [],
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Gagal memuat data form lukisan:', error.message);
+        alert('Gagal mengambil data dari server.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id, isEdit]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,46 +87,208 @@ export default function AdminLukisanForm() {
     setForm((prev) => ({
       ...prev,
       kategoriIds: prev.kategoriIds.includes(katId)
-        ? prev.kategoriIds.filter((id) => id !== katId)
+        ? prev.kategoriIds.filter((kid) => kid !== katId)
         : [...prev.kategoriIds, katId],
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Mock save
-    alert(isEdit ? 'Lukisan berhasil diperbarui!' : 'Lukisan berhasil ditambahkan!');
-    navigate('/admin/lukisan');
+  // Upload Foto Utama
+  const handleUploadMain = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploading(true);
+    try {
+      const response = await request('/api/upload/single', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.success && response.url) {
+        setForm((prev) => ({ ...prev, fotoUtama: response.url }));
+        alert('Foto utama berhasil diunggah!');
+      }
+    } catch (error) {
+      alert(`Gagal mengunggah foto utama: ${error.message}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const generateSlug = (title) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
+  // Upload Foto Tambahan (Max 5)
+  const handleUploadAdditional = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if (form.fotoLain.length + files.length > 5) {
+      alert('Maksimal foto tambahan adalah 5 gambar.');
+      return;
+    }
+
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    setUploadingLain(true);
+    try {
+      const response = await request('/api/upload/multiple', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.success && response.urls) {
+        setForm((prev) => ({
+          ...prev,
+          fotoLain: [...prev.fotoLain, ...response.urls].slice(0, 5),
+        }));
+        alert('Foto tambahan berhasil diunggah!');
+      }
+    } catch (error) {
+      alert(`Gagal mengunggah foto tambahan: ${error.message}`);
+    } finally {
+      setUploadingLain(false);
+    }
   };
+
+  // Remove Additional Photo
+  const handleRemoveAdditional = (indexToRemove) => {
+    setForm((prev) => ({
+      ...prev,
+      fotoLain: prev.fotoLain.filter((_, i) => i !== indexToRemove),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.fotoUtama) {
+      alert('Foto utama wajib diunggah.');
+      return;
+    }
+
+    try {
+      const endpoint = isEdit ? `/api/lukisan/${id}` : '/api/lukisan';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await request(endpoint, {
+        method,
+        body: form,
+      });
+
+      if (response.success) {
+        alert(isEdit ? 'Lukisan berhasil diperbarui!' : 'Lukisan berhasil ditambahkan!');
+        navigate('/admin/lukisan');
+      }
+    } catch (error) {
+      alert(`Gagal menyimpan lukisan: ${error.message}`);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="admin-lukisan-form font-mono" style={{ padding: '40px' }}>
+        Memuat data lukisan...
+      </div>
+    );
+  }
 
   return (
     <div className="admin-lukisan-form" id="admin-lukisan-form">
       <h1 className="admin-page-title">{isEdit ? 'Edit Lukisan' : 'Tambah Lukisan Baru'}</h1>
-      <p className="admin-lukisan-form__slug">
-        Slug: <code>/galeri/{generateSlug(form.judul) || '...'}</code>
-      </p>
 
       <form onSubmit={handleSubmit} className="admin-lukisan-form__body">
-        {/* Image Upload Area */}
+        {/* Foto Utama */}
         <div className="admin-form-section">
-          <h3 className="admin-form-section__title">Foto</h3>
-          <div className="admin-upload-zone" id="upload-zone">
+          <h3 className="admin-form-section__title">Foto Utama *</h3>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            accept="image/*"
+            onChange={handleUploadMain}
+          />
+          <div
+            className="admin-upload-zone"
+            id="upload-zone-main"
+            onClick={() => fileInputRef.current.click()}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="admin-upload-zone__content">
               <span className="admin-upload-zone__icon">📷</span>
-              <span className="admin-upload-zone__text">Klik atau drag & drop foto utama di sini</span>
+              <span className="admin-upload-zone__text">
+                {uploading ? 'Sedang mengunggah...' : 'Klik untuk mengunggah foto utama'}
+              </span>
               <span className="admin-upload-zone__hint">JPG, PNG · Maks 5MB</span>
             </div>
           </div>
-          {existing?.fotoUtama && (
-            <img src={existing.fotoUtama} alt="Preview" className="admin-upload-preview" />
+          {form.fotoUtama && (
+            <div style={{ marginTop: '15px' }}>
+              <img src={form.fotoUtama} alt="Preview Utama" className="admin-upload-preview" />
+              <span className="admin-form-hint">URL R2: {form.fotoUtama.slice(0, 50)}...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Foto Tambahan (Galeri) */}
+        <div className="admin-form-section">
+          <h3 className="admin-form-section__title">Foto Tambahan (Galeri - Maks 5)</h3>
+          <input
+            type="file"
+            ref={multipleFilesInputRef}
+            style={{ display: 'none' }}
+            multiple
+            accept="image/*"
+            onChange={handleUploadAdditional}
+          />
+          <div
+            className="admin-upload-zone"
+            id="upload-zone-multiple"
+            onClick={() => multipleFilesInputRef.current.click()}
+            style={{ cursor: 'pointer', borderStyle: 'dashed' }}
+          >
+            <div className="admin-upload-zone__content">
+              <span className="admin-upload-zone__icon">🖼️</span>
+              <span className="admin-upload-zone__text">
+                {uploadingLain ? 'Sedang mengunggah...' : 'Klik untuk mengunggah foto galeri'}
+              </span>
+              <span className="admin-upload-zone__hint">Hingga 5 gambar</span>
+            </div>
+          </div>
+
+          {form.fotoLain.length > 0 && (
+            <div className="admin-lukisan-form__gallery-previews" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px' }}>
+              {form.fotoLain.map((foto, idx) => (
+                <div key={idx} style={{ position: 'relative' }}>
+                  <img src={foto} alt={`Preview ${idx}`} style={{ width: '80px', height: '80px', objectFit: 'cover', border: '2px solid var(--color-border)' }} />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAdditional(idx)}
+                    style={{
+                      position: 'absolute',
+                      top: '-5px',
+                      right: '-5px',
+                      background: 'var(--color-accent)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -150,7 +364,7 @@ export default function AdminLukisanForm() {
         <div className="admin-form-section">
           <h3 className="admin-form-section__title">Kategori</h3>
           <div className="admin-form-checks">
-            {kategoriData.map((k) => (
+            {kategoriList.map((k) => (
               <label key={k.id} className="admin-checkbox">
                 <input
                   type="checkbox"

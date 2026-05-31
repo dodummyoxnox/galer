@@ -1,16 +1,51 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { lukisanData, formatHarga } from '../../data/mockData';
 import StatusStamp from '../../components/public/StatusStamp';
+import { formatHarga } from '../../data/mockData'; // we can keep formatting helper or define locally
+import { request } from '../../utils/api';
 import './DetailLukisan.css';
 
 export default function DetailLukisan() {
   const { slug } = useParams();
-  const index = lukisanData.findIndex((l) => l.slug === slug);
-  const lukisan = lukisanData[index];
+  const [lukisan, setLukisan] = useState(null);
+  const [prevLukisan, setPrevLukisan] = useState(null);
+  const [nextLukisan, setNextLukisan] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDetail = async () => {
+      setLoading(true);
+      try {
+        const response = await request(`/api/lukisan/${slug}`);
+        if (response.success) {
+          setLukisan(response.data);
+          setPrevLukisan(response.prev); // Object { slug, judul } or null
+          setNextLukisan(response.next); // Object { slug, judul } or null
+        } else {
+          setLukisan(null);
+        }
+      } catch (error) {
+        console.error('Gagal memuat detail lukisan:', error.message);
+        setLukisan(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDetail();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="detail-page section container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2 className="font-mono" style={{ color: 'var(--color-muted)' }}>Memuat detail karya...</h2>
+      </div>
+    );
+  }
 
   if (!lukisan) {
     return (
-      <div className="detail-page section container">
+      <div className="detail-page section container" style={{ minHeight: '65vh' }}>
         <h1 className="font-display">KARYA TIDAK DITEMUKAN</h1>
         <p className="font-mono" style={{ color: 'var(--color-muted)' }}>
           Lukisan yang kamu cari tidak ada di galeri.
@@ -21,9 +56,6 @@ export default function DetailLukisan() {
       </div>
     );
   }
-
-  const prevLukisan = index > 0 ? lukisanData[index - 1] : null;
-  const nextLukisan = index < lukisanData.length - 1 ? lukisanData[index + 1] : null;
 
   const details = [
     { label: 'TAHUN', value: lukisan.tahun },
@@ -56,7 +88,7 @@ export default function DetailLukisan() {
             ))}
           </div>
 
-          {lukisan.kategori.length > 0 && (
+          {lukisan.kategori && lukisan.kategori.length > 0 && (
             <div className="detail-page__tags">
               {lukisan.kategori.map((k) => (
                 <span key={k.id} className="detail-page__tag stamp" style={{ transform: `rotate(${Math.random() * 4 - 2}deg)` }}>
@@ -69,7 +101,7 @@ export default function DetailLukisan() {
           <div className="divider-kasar divider-kasar--thin" />
 
           <div className="detail-page__desc font-mono">
-            <p>{lukisan.deskripsi}</p>
+            <p style={{ whiteSpace: 'pre-line' }}>{lukisan.deskripsi}</p>
           </div>
 
           <Link to="/kontak" className="btn-brutal btn-brutal--accent">
@@ -79,7 +111,7 @@ export default function DetailLukisan() {
       </div>
 
       {/* Additional photos */}
-      {lukisan.fotoLain.length > 0 && (
+      {lukisan.fotoLain && lukisan.fotoLain.length > 0 && (
         <div className="detail-page__gallery container">
           <h4 className="font-display" style={{ marginBottom: 'var(--space-lg)' }}>FOTO LAINNYA</h4>
           <div className="detail-page__gallery-grid">

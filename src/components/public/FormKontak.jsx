@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { request } from '../../utils/api';
 import './FormKontak.css';
 
 const jenisOptions = [
@@ -19,21 +20,36 @@ export default function FormKontak() {
     isi: '',
   });
   const [status, setStatus] = useState(null); // 'loading' | 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
+    setErrorMessage('');
 
-    // Simulate API call
-    setTimeout(() => {
-      setStatus('success');
-      setForm({ nama: '', email: '', noWa: '', jenis: '', isi: '' });
-      setTimeout(() => setStatus(null), 5000);
-    }, 1500);
+    try {
+      const response = await request('/api/pesan', {
+        method: 'POST',
+        body: form,
+      });
+
+      if (response.success) {
+        setStatus('success');
+        setForm({ nama: '', email: '', noWa: '', jenis: '', isi: '' });
+        setTimeout(() => setStatus(null), 5000);
+      } else {
+        setStatus('error');
+        setErrorMessage(response.error || 'Gagal mengirim pesan.');
+      }
+    } catch (error) {
+      console.error('Submit kontak error:', error);
+      setStatus('error');
+      setErrorMessage(error.message || 'Terjadi kesalahan jaringan.');
+    }
   };
 
   return (
@@ -49,6 +65,7 @@ export default function FormKontak() {
           required
           className="form-kontak__input font-mono"
           placeholder="Nama lengkap kamu"
+          disabled={status === 'loading'}
         />
       </div>
 
@@ -64,6 +81,7 @@ export default function FormKontak() {
             required
             className="form-kontak__input font-mono"
             placeholder="email@contoh.com"
+            disabled={status === 'loading'}
           />
         </div>
 
@@ -77,6 +95,7 @@ export default function FormKontak() {
             onChange={handleChange}
             className="form-kontak__input font-mono"
             placeholder="08xxxxxxxxxx"
+            disabled={status === 'loading'}
           />
         </div>
       </div>
@@ -90,6 +109,7 @@ export default function FormKontak() {
           onChange={handleChange}
           required
           className="form-kontak__input form-kontak__select font-mono"
+          disabled={status === 'loading'}
         >
           <option value="">— Pilih jenis —</option>
           {jenisOptions.map((j) => (
@@ -109,6 +129,7 @@ export default function FormKontak() {
           rows={6}
           className="form-kontak__input form-kontak__textarea font-mono"
           placeholder="Ceritakan apa yang kamu butuhkan..."
+          disabled={status === 'loading'}
         />
       </div>
 
@@ -129,7 +150,7 @@ export default function FormKontak() {
         )}
         {status === 'error' && (
           <span className="form-kontak__status form-kontak__status--error font-mono">
-            GAGAL MENGIRIM — COBA LAGI
+            {errorMessage || 'GAGAL MENGIRIM — COBA LAGI'}
           </span>
         )}
       </div>
